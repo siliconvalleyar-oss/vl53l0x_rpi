@@ -3,7 +3,6 @@
 #include <bcm2835.h>
 #include <cstdint>
 #include <stdexcept>
-#include <string>
 
 namespace UTILS {
 
@@ -13,8 +12,8 @@ public:
     ~I2cDevice();
 
     bool write_register(uint8_t reg, uint8_t value);
-    bool read_register(uint8_t reg, uint8_t* buffer, uint16_t length);
     uint8_t read_register(uint8_t reg);
+    bool read_register(uint8_t reg, uint8_t* buffer, uint16_t length);
 
 private:
     uint8_t address_;
