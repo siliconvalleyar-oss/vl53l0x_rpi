@@ -182,6 +182,7 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
     uint8_t high = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 10);
     uint8_t low = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 11);
     uint16_t distance = (static_cast<uint16_t>(high) << 8) | low;
+    std::cerr << "Debug: high=" << (int)high << " low=" << (int)low << " raw=" << distance << std::endl;
     distance = calculate_distance(distance);
 
     last_distance_ = distance;
