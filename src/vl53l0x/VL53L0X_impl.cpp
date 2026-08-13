@@ -179,6 +179,7 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
 
     for (int i = 0; i < 100; ++i) {
         uint8_t interrupt = read_reg(VL53L0X_REG_RESULT_INTERRUPT_STATUS);
+        std::cerr << "Debug: interrupt_status=0x" << std::hex << (int)interrupt << std::dec << std::endl;
         if (interrupt & 0x07) break;
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
