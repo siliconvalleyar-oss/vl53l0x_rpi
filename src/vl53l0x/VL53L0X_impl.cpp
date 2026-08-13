@@ -9,11 +9,11 @@
 namespace VL53L0X {
 
 namespace {
-// Calibracion empirica del modulo (SSC no completo):
-//   medido = 1.4644 x real + 23  =>  real = (medido - 23) x 100 / 146
-// Puntos de referencia: 30 mm -> 67 mm, 297 mm (A4) -> 458 mm
-constexpr int32_t kCalibRawToMmOffset = 23;
-constexpr int32_t kCalibRawToMmScale = 146; // (x100)
+// Calibracion empirica del modulo (SSC no completo, VCSEL inestable):
+//   medido = 1.1423 x real + 33  =>  real = (medido - 33) x 100 / 114
+// Puntos de referencia: 30 mm -> 67 mm, 297 mm (A4) -> 372 mm
+constexpr int32_t kCalibRawToMmOffset = 33;
+constexpr int32_t kCalibRawToMmScale = 114; // (x100)
 }
 
 Vl53l0x_t::Impl::Impl()
