@@ -3,8 +3,8 @@
 #include <unistd.h>
 
 #define VL53L0X_ADDRESS 0x29
-#define PIN_XSHUT 27
-#define PIN_GPIO1 17
+#define PIN_XSHUT 17
+#define PIN_GPIO1 27
 
 uint8_t readByte(uint8_t reg) {
     bcm2835_i2c_write(reinterpret_cast<const char*>(&reg), 1);
