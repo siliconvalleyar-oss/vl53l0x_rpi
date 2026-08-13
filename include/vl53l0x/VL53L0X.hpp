@@ -10,8 +10,6 @@ namespace VL53L0X {
 extern std::atomic<bool> g_running;
 void signal_handler(int signal);
 
-namespace VL53L0X {
-
 enum class MeasurementMode {
     SINGLE_SHOT = 0,
     CONTINUOUS = 1,
