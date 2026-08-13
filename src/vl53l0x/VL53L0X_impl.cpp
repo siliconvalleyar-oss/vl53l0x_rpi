@@ -173,10 +173,6 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
         return 0;
     }
 
-    uint8_t range_status = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS);
-    if (i2c_ && i2c_->last_error()) {
-        return 0xFFFF;
-    }
     uint8_t high = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 10);
     if (i2c_ && i2c_->last_error()) {
         return 0xFFFF;
@@ -187,12 +183,6 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
     }
 
     write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
-
-    // byte 0x14, bits [6:3] = estado del rango; 0 = medición válida
-    if ((range_status & 0x78) != 0) {
-        last_distance_ = 0;
-        return 0;
-    }
 
     uint16_t distance = (static_cast<uint16_t>(high) << 8) | low;
     distance = calculate_distance(distance);
@@ -258,11 +248,8 @@ bool Vl53l0x_t::Impl::read_regs(uint8_t reg, uint8_t* buffer, uint16_t length) {
 }
 
 uint16_t Vl53l0x_t::Impl::calculate_distance(uint16_t raw) {
-    if (raw == 0xFFFF) return 0;
-    int32_t distance = static_cast<int32_t>(raw);
-    if (distance < static_cast<int32_t>(VL53L0X_MIN_DISTANCE)) return 0;
-    if (distance > static_cast<int32_t>(VL53L0X_MAX_DISTANCE)) return 0;
-    return static_cast<uint16_t>(distance);
+    if (raw == 0xFFFF || raw == 0x1FFF) return 0;
+    return raw;
 }
 
 }
