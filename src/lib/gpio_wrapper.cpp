@@ -1,5 +1,5 @@
 #include "gpio_wrapper.hpp"
-#include "include/lib/bcm2835_init.hpp"
+#include "lib/bcm2835_init.hpp"
 
 namespace UTILS {
 
