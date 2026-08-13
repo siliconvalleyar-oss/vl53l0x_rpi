@@ -78,14 +78,14 @@ I2C address: `0x29` (default)
 
 ## Documentation
 
-- [Architecture](ARCHITECTURE.md) - System design and data flow
-- [API Reference](API.md) - Complete API documentation
-- [Setup Guide](SETUP.md) - Raspberry Pi initial configuration
-- [Testing Guide](TESTING.md) - Unit and integration tests
-- [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
-- [Coding Rules](RULES.md) - Code style and conventions
-- [Todo List](TODO.md) - Planned features and improvements
-- [Changelog](CHANGELOG.md) - Version history
+- [Architecture](docs/ARCHITECTURE.md) - System design and data flow
+- [API Reference](docs/API.md) - Complete API documentation
+- [Setup Guide](docs/SETUP.md) - Raspberry Pi initial configuration
+- [Testing Guide](docs/TESTING.md) - Unit and integration tests
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Coding Rules](docs/RULES.md) - Code style and conventions
+- [Todo List](docs/TODO.md) - Planned features and improvements
+- [Changelog](docs/CHANGELOG.md) - Version history
 
 ## License
 

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <atomic>
 #include "VL53L0X.hpp"
+#include "lib/bcm2835_wrapper.hpp"
 
 namespace VL53L0X {
 

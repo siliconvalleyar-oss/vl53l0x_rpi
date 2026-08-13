@@ -31,14 +31,14 @@ bool I2cDevice::write_register(uint8_t reg, uint8_t value) {
 bool I2cDevice::read_register(uint8_t reg, uint8_t* buffer, uint16_t length) {
     if (!initialized_ || !buffer) return false;
     bcm2835_i2c_setSlaveAddress(address_);
-    return bcm2835_i2c_read_register_rs((char*)buffer, length, reg) == BCM2835_I2C_REASON_OK;
+    return bcm2835_i2c_read_register_rs(reinterpret_cast<char*>(const_cast<uint8_t*>(&reg)), reinterpret_cast<char*>(buffer), static_cast<uint32_t>(length)) == BCM2835_I2C_REASON_OK;
 }
 
 uint8_t I2cDevice::read_register(uint8_t reg) {
     if (!initialized_) return 0;
     char buffer[1];
     bcm2835_i2c_setSlaveAddress(address_);
-    if (bcm2835_i2c_read_register_rs(buffer, 1, reg) != BCM2835_I2C_REASON_OK) {
+    if (bcm2835_i2c_read_register_rs(reinterpret_cast<char*>(const_cast<uint8_t*>(&reg)), buffer, 1) != BCM2835_I2C_REASON_OK) {
         return 0;
     }
     return static_cast<uint8_t>(buffer[0]);

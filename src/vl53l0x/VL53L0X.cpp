@@ -66,19 +66,19 @@ bool Vl53l0x_t::is_initialized() const {
     return true;
 }
 
-const char* get_error_string(Vl53l0x_error_t error) {
+const char* get_error_string(Vl53l0xError error) {
     switch (error) {
-        case Vl53l0x_error_t::NONE:
+        case Vl53l0xError::NONE:
             return "No error";
-        case Vl53l0x_error_t::I2C_ERROR:
+        case Vl53l0xError::I2C_ERROR:
             return "I2C communication error";
-        case Vl53l0x_error_t::INVALID_DEVICE:
+        case Vl53l0xError::INVALID_DEVICE:
             return "Invalid device ID";
-        case Vl53l0x_error_t::TIMEOUT:
+        case Vl53l0xError::TIMEOUT:
             return "Operation timeout";
-        case Vl53l0x_error_t::CALIBRATION_ERROR:
+        case Vl53l0xError::CALIBRATION_ERROR:
             return "Calibration error";
-        case Vl53l0x_error_t::NOT_INITIALIZED:
+        case Vl53l0xError::NOT_INITIALIZED:
             return "Sensor not initialized";
         default:
             return "Unknown error";

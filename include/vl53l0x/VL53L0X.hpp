@@ -3,6 +3,12 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <atomic>
+
+namespace VL53L0X {
+
+extern std::atomic<bool> g_running;
+void signal_handler(int signal);
 
 namespace VL53L0X {
 
@@ -56,6 +62,6 @@ private:
     std::unique_ptr<Impl> pimpl;
 };
 
-const char* get_error_string(Vl53l0x_error_t error);
+const char* get_error_string(Vl53l0xError error);
 
 }
