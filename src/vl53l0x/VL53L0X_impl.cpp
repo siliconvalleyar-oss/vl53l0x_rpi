@@ -21,9 +21,9 @@ void Vl53l0x_t::Impl::set_xshut_pin(uint8_t pin) {
     if (pin == 0) return;
     try {
         xshut_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::OUTPUT);
-        xshut_->set_state(UTILS::GpioPin::State::LOW);
+        xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        xshut_->set_state(UTILS::GpioPin::State::HIGH);
+        xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } catch (const std::exception& e) {
         xshut_.reset();
@@ -41,9 +41,9 @@ void Vl53l0x_t::Impl::set_gpio1_pin(uint8_t pin) {
 
 bool Vl53l0x_t::Impl::hardware_reset() {
     if (!xshut_) return false;
-    xshut_->set_state(UTILS::GpioPin::State::LOW);
+    xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    xshut_->set_state(UTILS::GpioPin::State::HIGH);
+    xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return true;
 }
@@ -63,9 +63,9 @@ bool Vl53l0x_t::Impl::wait_for_device(uint8_t address, int timeout_ms) {
 
 bool Vl53l0x_t::Impl::initialize() {
     if (xshut_) {
-        xshut_->set_state(UTILS::GpioPin::State::LOW);
+        xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        xshut_->set_state(UTILS::GpioPin::State::HIGH);
+        xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 

@@ -9,13 +9,13 @@ namespace UTILS {
 class GpioPin {
 public:
     enum class Direction {
-        INPUT,
-        OUTPUT
+        INPUT = 0,
+        OUTPUT = 1
     };
 
     enum class State {
-        LOW = 0,
-        HIGH = 1
+        PIN_LOW = 0,
+        PIN_HIGH = 1
     };
 
     GpioPin(uint8_t pin, Direction direction);

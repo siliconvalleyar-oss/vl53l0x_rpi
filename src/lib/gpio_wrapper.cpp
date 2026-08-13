@@ -1,4 +1,4 @@
-#include "include/lib/gpio_wrapper.hpp"
+#include "gpio_wrapper.hpp"
 
 namespace UTILS {
 
@@ -25,9 +25,9 @@ void GpioPin::set_state(State state) {
 }
 
 GpioPin::State GpioPin::get_state() const {
-    if (!initialized_) return State::LOW;
+    if (!initialized_) return State::PIN_LOW;
     uint8_t level = bcm2835_gpio_lev(pin_);
-    return level ? State::HIGH : State::LOW;
+    return level ? State::PIN_HIGH : State::PIN_LOW;
 }
 
 void GpioPin::set_direction(Direction direction) {
