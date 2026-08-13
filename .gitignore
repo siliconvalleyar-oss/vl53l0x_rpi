@@ -1,0 +1,48 @@
+# Build directories
+bin/
+obj/
+build/
+dist/
+
+# Compiled object files
+*.o
+*.so
+*.a
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+*.tmp
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled binaries
+laser_measure
+*.exe
+
+# Core dumps
+core
+core.*
+
+# Backup files
+*.bak
+*.orig
+
+# Package files
+*.deb
+*.rpm
+*.tar.gz
+*.zip
