@@ -59,6 +59,8 @@ public:
     int16_t get_offset() const;
     bool is_initialized() const;
 
+    uint16_t get_last_distance() const;
+
 private:
     class Impl;
     std::unique_ptr<Impl> pimpl;

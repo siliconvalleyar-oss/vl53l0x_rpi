@@ -23,6 +23,10 @@ public:
     void set_xshut_pin(uint8_t pin);
     void set_gpio1_pin(uint8_t pin);
 
+    int16_t get_offset() const { return offset_; }
+    bool is_initialized() const { return is_initialized_; }
+    uint16_t get_last_distance() const { return last_distance_; }
+
 private:
     bool write_reg(uint8_t reg, uint8_t value);
     uint8_t read_reg(uint8_t reg);

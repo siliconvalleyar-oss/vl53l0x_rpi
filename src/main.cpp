@@ -41,12 +41,12 @@ int main() {
 
         uint16_t distance = laser->medir();
 
-        if (distance > 0 && distance < 2000) {
-            std::cout << "Distancia: " << distance << " mm" << std::endl;
+        if (distance == 0xFFFF) {
+            std::cout << "Distancia: error de lectura I2C" << std::endl;
         } else if (distance == 0) {
             std::cout << "Distancia: fuera de rango" << std::endl;
         } else {
-            std::cout << "Distancia: " << distance << " mm (error)" << std::endl;
+            std::cout << "Distancia: " << distance << " mm" << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));

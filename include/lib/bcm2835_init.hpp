@@ -11,11 +11,11 @@ class Bcm2835Init {
 public:
     static void initialize() {
         static std::atomic<bool> initialized{false};
-        if (!initialized.exchange(true)) {
-            if (!bcm2835_init()) {
-                throw std::runtime_error("Failed to initialize bcm2835");
-            }
+        if (initialized.load()) return;
+        if (!bcm2835_init()) {
+            throw std::runtime_error("Failed to initialize bcm2835");
         }
+        initialized.store(true);
     }
 };
 

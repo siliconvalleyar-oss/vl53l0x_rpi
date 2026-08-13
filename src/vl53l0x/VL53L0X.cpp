@@ -74,11 +74,18 @@ uint8_t Vl53l0x_t::get_address() const {
 }
 
 int16_t Vl53l0x_t::get_offset() const {
-    return 0;
+    if (!pimpl) return 0;
+    return pimpl->get_offset();
 }
 
 bool Vl53l0x_t::is_initialized() const {
-    return true;
+    if (!pimpl) return false;
+    return pimpl->is_initialized();
+}
+
+uint16_t Vl53l0x_t::get_last_distance() const {
+    if (!pimpl) return 0;
+    return pimpl->get_last_distance();
 }
 
 const char* get_error_string(Vl53l0xError error) {
