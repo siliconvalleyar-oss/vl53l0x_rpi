@@ -26,10 +26,19 @@ int main() {
     std::cout << "Presione Ctrl+C para salir" << std::endl;
     std::cout << std::endl;
 
-    laser->set_measurement_mode(VL53L0X::MeasurementMode::CONTINUOUS);
+    laser->set_measurement_mode(VL53L0X::MeasurementMode::SINGLE_SHOT);
     laser->calibrar(0);
 
+    auto start = std::chrono::steady_clock::now();
+
     while (VL53L0X::g_running) {
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now() - start).count();
+        if (elapsed >= 16) {
+            std::cout << "Tiempo maximo de prueba alcanzado (16s)." << std::endl;
+            break;
+        }
+
         uint16_t distance = laser->medir();
 
         if (distance > 0 && distance < 2000) {

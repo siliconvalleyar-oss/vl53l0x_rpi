@@ -167,6 +167,18 @@ bool Vl53l0x_t::Impl::initialize() {
 uint16_t Vl53l0x_t::Impl::read_distance() {
     if (!is_initialized_) return 0;
 
+    write_reg(VL53L0X_REG_SYSRANGE_START, 0x01);
+
+    for (int i = 0; i < 100; ++i) {
+        uint8_t status = read_reg(VL53L0X_REG_RESULT_INTERRUPT_STATUS);
+        if (status & 0x07) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+
+    write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
+
     uint8_t high = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 10);
     uint8_t low = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 11);
     uint16_t distance = (static_cast<uint16_t>(high) << 8) | low;
