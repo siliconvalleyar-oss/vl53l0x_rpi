@@ -44,7 +44,7 @@ run: $(TARGET)
 $(TARGET): $(OBJS) | $(BIN_DIR)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp VERSION | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@ -MF $(@:.o=.d)
 
