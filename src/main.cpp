@@ -4,6 +4,8 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <vector>
+#include <algorithm>
 #include "vl53l0x/VL53L0X.hpp"
 
 #ifndef APP_VERSION
@@ -43,6 +45,12 @@ int main() {
     laser->set_measurement_mode(VL53L0X::MeasurementMode::SINGLE_SHOT);
     laser->calibrar(0);
 
+    // Filtro de mediana movil para estabilizar el ruido del modulo
+    // (VCSEL degradado: lecturas individuales varian ±6 mm).
+    std::vector<uint16_t> window;
+    window.reserve(5);
+    constexpr size_t kWindowSize = 5;
+
     auto start = std::chrono::steady_clock::now();
 
     while (VL53L0X::g_running) {
@@ -60,7 +68,14 @@ int main() {
         } else if (distance == 0) {
             std::cout << "Distancia: fuera de rango" << std::endl;
         } else {
-            std::cout << "Distancia: " << distance << " mm" << std::endl;
+            window.push_back(distance);
+            if (window.size() > kWindowSize) {
+                window.erase(window.begin());
+            }
+            std::vector<uint16_t> sorted(window);
+            std::sort(sorted.begin(), sorted.end());
+            std::cout << "Distancia: " << sorted[sorted.size() / 2]
+                      << " mm (raw " << distance << ")" << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
