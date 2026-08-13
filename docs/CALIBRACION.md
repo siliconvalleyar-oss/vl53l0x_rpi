@@ -146,10 +146,13 @@ Raw medido a la misma distancia (297 mm, A4) en distintas sesiones:
 | D      | 241      | 81  |
 | E      | 290      | 98  |
 | F      | 358      | 120 |
+| G      | 350–363  | 120 (sigue válida) |
 
 La deriva de ±20 % entre sesiones es síntoma del VCSEL degradado. La
 calibración por software centra el error, pero **no elimina el ruido ni
 la deriva**: para mediciones precisas se recomienda reemplazar el módulo.
+La sesión G (raw 350–363 → 291–302 corregidos, mediana ~296) confirmó que
+la escala 120 quedó centrada en la referencia de 297 mm.
 
 ## 8. Diagnóstico rápido del módulo
 
@@ -161,7 +164,69 @@ la deriva**: para mediciones precisas se recomienda reemplazar el módulo.
 | Glitches de 20 mm (estado 0x41) | Crosstalk del VCSEL > señal del objeto | **Retry automático** en app (`measure_once()` en `read_distance`) y script (`medir()`): si el raw es < 30 mm se reintenta una vez |
 | Ruido/deriva entre corridas | VCSEL degradado | Recalibrar (sección 6) o reemplazar |
 
-## 9. Referencias
+## 9. Filtros de software (app)
+
+Resumen de los filtros en la app (`src/main.cpp` y `VL53L0X_impl.cpp`)
+para mitigar el ruido del módulo (v1.2.16 → v1.3.0):
+
+| Filtro | Dónde | Parámetro | Efecto |
+|--------|-------|-----------|--------|
+| Retry de glitch de 20 mm | `read_distance()` (vía `measure_once()`) | 1 reintento | Descarta el falso blanco (estado `0x41`); si la 2ª medición también falla, reporta «fuera de rango» |
+| Mínimo válido | `calculate_distance()` | `kMinValidDistanceMm = 30` | Lecturas < 30 mm → 0 («fuera de rango») |
+| **Mediana móvil** | `main.cpp` (bucle de medición) | ventana de 9 lecturas | Estabiliza la salida: con la A4 fija a 297 mm muestra 295–298 |
+
+- La mediana usa ventana de 9 (antes 5) para mayor estabilidad con objeto
+  fijo; responde más lento a los movimientos.
+- Cada lectura se muestra como `Distancia: X mm (raw Y)` (Y = valor crudo).
+
+## 10. Scripts
+
+- **`vl53.sh` (raíz)**: atajo a `scripts/test_vl53l0x.sh` (aplica la
+  calibración). En la Pi había una **copia vieja** de este nombre que no
+  aplicaba calibración y reportaba el raw (ej. 355 mm); se eliminó y se
+  reemplazó por el atajo (commit 7eadd4e).
+- **`scripts/test_vl53l0x.sh`**: aplica la misma calibración que la app:
+  - Constantes `SCALE=120` y `MIN_VALID=30` al inicio.
+  - Función `medir()`: deja `$DIST` (raw), `$RS` (estado) y `$MM`
+    (calibrado; 0 = glitch/fuera de rango).
+  - Retry de glitch basado en el valor calibrado (`$MM == 0`), igual que
+    la app.
+  - `i2cdetect` con ruta completa (`/usr/sbin/i2cdetect`) para shells no
+    interactivos (commit 50f2091).
+- **`scripts/install_deps.sh`**: ya no instala bcm2835 (no se usa — el
+  I2C es por ioctl del kernel; `bcm2835_wrapper.cpp` solo tiene nombre
+  engañoso). Instala `raspi-utils`/`pinctrl` y `i2c-tools`.
+- **`scripts/run.sh`**: ejecuta la app; mensaje actualizado (ya no
+  menciona bcm2835).
+
+## 11. Versionado
+
+Convención (ver `docs/WORKFLOW.md`):
+
+- **fix** → patch (`1.2.16`, `1.2.17`).
+- **feature** → minor (la mediana debió saltar a `1.3.0`, no `1.2.18`).
+- Cada minor tiene exactamente 10 patches (0–9); luego minor.
+- Tag = VERSION (con `v`). Ej.: tag `v1.3.0` → VERSION `1.3.0`.
+
+Línea de tiempo reciente:
+
+| Versión | Cambio |
+|---------|--------|
+| 1.2.15 | Recalibración escala 98 (raw 290 a 297 mm) |
+| 1.2.16 | Fix: retry de glitch de 20 mm (app `measure_once` + script `medir`) |
+| 1.2.17 | Recalibración escala 120 (raw 358 a 297 mm) |
+| 1.3.0  | Feature: filtro de mediana móvil (ventana 9) + tag `v1.3.0` |
+| 1.3.0  | Scripts: `vl53.sh` atajo, `i2cdetect` ruta completa, install_deps sin bcm2835 |
+
+## 12. Acceso remoto a la Pi
+
+- IP actual de la Raspberry Pi (hostname `raspberry`): `192.168.1.44`,
+  usuario `joy`.
+- Acceso por SSH con claves desde la máquina de desarrollo (ms7851).
+- Repo en la Pi: `~/src/vl53l0x_rpi`.
+- Para aplicar cambios: `git pull` en la Pi y recompilar (`make all`).
+
+## 13. Referencias
 
 - Script de prueba: `scripts/test_vl53l0x.sh` (mismo init que el C++).
 - Reset de pines: `pinctrl` (kernel) — `raspi-gpio` como fallback.
