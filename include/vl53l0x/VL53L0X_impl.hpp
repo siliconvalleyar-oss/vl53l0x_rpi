@@ -3,7 +3,6 @@
 #include <memory>
 #include "VL53L0X.hpp"
 #include "lib/bcm2835_wrapper.hpp"
-#include "lib/gpio_wrapper.hpp"
 
 namespace VL53L0X {
 
@@ -35,8 +34,8 @@ private:
     bool wait_for_device(uint8_t address, int timeout_ms);
 
     std::unique_ptr<UTILS::I2cDevice> i2c_;
-    std::unique_ptr<UTILS::GpioPin> xshut_;
-    std::unique_ptr<UTILS::GpioPin> gpio1_;
+    uint8_t xshut_pin_;
+    uint8_t gpio1_pin_;
     uint8_t address_;
     int16_t offset_;
     bool is_initialized_;

@@ -5,10 +5,36 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <cstdlib>
+#include <string>
 
 namespace VL53L0X {
 
 namespace {
+// Control de pines por el driver del kernel (como scripts/test_vl53l0x.sh):
+// bcm2835 dejaba al modulo en estados distintos en cada corrida.
+void pinctrl_set(uint8_t pin, const char* op) {
+    std::string cmd = "pinctrl set " + std::to_string(static_cast<int>(pin)) + " " + op;
+    if (std::system(cmd.c_str()) != 0) {
+        std::cerr << "Aviso: fallo el comando: " << cmd << std::endl;
+    }
+}
+
+void xshut_reset_pulse(uint8_t pin) {
+    if (pin == 0) return;
+    pinctrl_set(pin, "op");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    pinctrl_set(pin, "dl");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    pinctrl_set(pin, "dh");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+void gpio_set_input(uint8_t pin) {
+    if (pin == 0) return;
+    pinctrl_set(pin, "ip");
+}
+
 // Calibracion con referencia A4 = 297 mm (medicion fresca):
 //   raw estable = 241 mm  =>  real = raw x 297/241 (ganancia pura)
 //   real = raw x 100 / 81
@@ -18,7 +44,9 @@ constexpr int32_t kMinValidDistanceMm = 30;
 }
 
 Vl53l0x_t::Impl::Impl()
-    : address_(VL53L0X_DEFAULT_ADDRESS)
+    : xshut_pin_(0)
+    , gpio1_pin_(0)
+    , address_(VL53L0X_DEFAULT_ADDRESS)
     , offset_(0)
     , is_initialized_(false)
     , mode_(MeasurementMode::SINGLE_SHOT)
@@ -28,33 +56,20 @@ Vl53l0x_t::Impl::Impl()
 Vl53l0x_t::Impl::~Impl() = default;
 
 void Vl53l0x_t::Impl::set_xshut_pin(uint8_t pin) {
+    xshut_pin_ = pin;
     if (pin == 0) return;
-    try {
-        xshut_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::OUTPUT);
-        xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    } catch (const std::exception& e) {
-        xshut_.reset();
-    }
+    xshut_reset_pulse(pin);
 }
 
 void Vl53l0x_t::Impl::set_gpio1_pin(uint8_t pin) {
+    gpio1_pin_ = pin;
     if (pin == 0) return;
-    try {
-        gpio1_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::INPUT);
-    } catch (const std::exception& e) {
-        gpio1_.reset();
-    }
+    gpio_set_input(pin);
 }
 
 bool Vl53l0x_t::Impl::hardware_reset() {
-    if (!xshut_) return false;
-    xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    if (xshut_pin_ == 0) return false;
+    xshut_reset_pulse(xshut_pin_);
     return true;
 }
 
@@ -72,11 +87,8 @@ bool Vl53l0x_t::Impl::wait_for_device(uint8_t /*address*/, int timeout_ms) {
 }
 
 bool Vl53l0x_t::Impl::initialize() {
-    if (xshut_) {
-        xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (xshut_pin_ != 0) {
+        xshut_reset_pulse(xshut_pin_);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

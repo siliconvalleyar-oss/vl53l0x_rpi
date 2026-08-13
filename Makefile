@@ -1,6 +1,6 @@
 CXX ?= g++
 CXXFLAGS += -Wall -Wextra -O2 -pipe -fstack-protector-strong -std=c++17
-LDFLAGS += -lbcm2835 -lpthread -lrt -lm
+LDFLAGS += -lpthread -lrt -lm
 
 APP_VERSION := $(shell cat VERSION)
 CXXFLAGS += -DAPP_VERSION=\"$(APP_VERSION)\"
