@@ -46,10 +46,11 @@ int main() {
     laser->calibrar(0);
 
     // Filtro de mediana movil para estabilizar el ruido del modulo
-    // (VCSEL degradado: lecturas individuales varian ±6 mm).
+    // (VCSEL degradado: lecturas individuales varian ±6 mm). Ventana de 9
+    // para mayor estabilidad con objeto fijo; responder mas lento a cambios.
     std::vector<uint16_t> window;
-    window.reserve(5);
-    constexpr size_t kWindowSize = 5;
+    window.reserve(9);
+    constexpr size_t kWindowSize = 9;
 
     auto start = std::chrono::steady_clock::now();
 
