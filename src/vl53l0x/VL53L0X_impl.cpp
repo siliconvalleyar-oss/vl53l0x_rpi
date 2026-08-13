@@ -4,7 +4,6 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
-#include <iostream>
 
 namespace VL53L0X {
 
@@ -64,29 +63,22 @@ bool Vl53l0x_t::Impl::wait_for_device(uint8_t /*address*/, int timeout_ms) {
 
 bool Vl53l0x_t::Impl::initialize() {
     if (xshut_) {
-        std::cerr << "Debug: Resetting sensor via XSHUT" << std::endl;
         xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        std::cerr << "Debug: XSHUT cycle done" << std::endl;
     }
 
-    std::cerr << "Debug: Creating I2C device at 0x" << std::hex << (int)address_ << std::dec << std::endl;
     try {
         i2c_ = std::make_unique<UTILS::I2cDevice>(address_);
     } catch (const std::exception& e) {
-        std::cerr << "Debug: I2C init exception: " << e.what() << std::endl;
         return false;
     }
 
     uint8_t device_id = read_reg(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
-    std::cerr << "Debug: device_id=0x" << std::hex << (int)device_id << std::dec << std::endl;
     if (device_id != VL53L0X_DEVICE_ID) {
-        std::cerr << "Debug: Wrong device ID" << std::endl;
         return false;
     }
-    std::cerr << "Debug: Device ID OK" << std::endl;
 
     write_reg(0x88, 0x00);
     write_reg(0x80, 0x01);
@@ -179,16 +171,14 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
 
     for (int i = 0; i < 100; ++i) {
         uint8_t interrupt = read_reg(VL53L0X_REG_RESULT_INTERRUPT_STATUS);
-        std::cerr << "Debug: interrupt_status=0x" << std::hex << (int)interrupt << std::dec << std::endl;
-        if (interrupt & 0x07) break;
+        if ((interrupt & 0x07) || (interrupt & 0x40)) break;
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
 
     uint8_t buffer[2];
-    read_regs(VL53L0X_REG_RESULT_RANGE_STATUS + 10, buffer, 2);
-    std::cerr << "Debug: raw distance bytes=" << std::hex << (int)buffer[0] << " " << (int)buffer[1] << std::dec << std::endl;
+    read_regs(VL53L0X_REG_RESULT_RANGE_STATUS + 8, buffer, 2);
     uint16_t distance = (static_cast<uint16_t>(buffer[0]) << 8) | buffer[1];
     distance = calculate_distance(distance);
 
