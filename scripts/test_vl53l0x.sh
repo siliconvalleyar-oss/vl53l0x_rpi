@@ -35,24 +35,29 @@ fi
 
 sleep 0.5
 
+# Herramientas I2C
+I2CDETECT=/usr/sbin/i2cdetect
+I2CGET=/usr/sbin/i2cget
+I2CSET=/usr/sbin/i2cset
+
+if [ ! -x "$I2CDETECT" ]; then
+    I2CDETECT=$(command -v i2cdetect)
+fi
+
+if [ ! -x "$I2CGET" ] || [ ! -x "$I2CSET" ]; then
+    echo "Error: no se encontro i2cget/i2cset (instalar i2c-tools)" >&2
+    exit 1
+fi
+
 # Verificar sensor
 echo "=== Verificando sensor en bus $BUS ==="
 DIR_HEX=$(printf '%02x' $DIR)
-if ! i2cdetect -y $BUS | grep -q "$DIR_HEX"; then
+if [ -z "$I2CDETECT" ] || ! "$I2CDETECT" -y $BUS | grep -q "$DIR_HEX"; then
     echo "ERROR: Sensor no detectado en bus $BUS dirección $DIR"
     echo "Ejecuta 'i2cdetect -y $BUS' para verificar manualmente"
     exit 1
 else
     echo "✓ Sensor detectado correctamente en $DIR"
-fi
-
-# Herramientas I2C
-I2CGET=/usr/sbin/i2cget
-I2CSET=/usr/sbin/i2cset
-
-if [ ! -x "$I2CGET" ] || [ ! -x "$I2CSET" ]; then
-    echo "Error: no se encontro i2cget/i2cset (instalar i2c-tools)" >&2
-    exit 1
 fi
 
 # Funciones auxiliares
