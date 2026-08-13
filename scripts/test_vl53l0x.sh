@@ -103,12 +103,10 @@ setbyte 0x0A 0x04
 setbyte 0x0B 0x01
 setbyte 0x94 0xE8
 
-echo "=== Mediciones (${N}x) ==="
-for n in $(seq 1 "$N"); do
-    # Iniciar medición
+# Función: una medición single-shot. Deja el resultado en $DIST y el estado en $RS.
+medir() {
     setbyte 0x00 0x01
 
-    # Esperar a que esté lista
     ready=0
     for i in $(seq 1 50); do
         st=$(getbyte 0x13); st=$(h2d "$st")
@@ -116,21 +114,36 @@ for n in $(seq 1 "$N"); do
         sleep 0.002
     done
 
-    # Leer resultados
     rs=$(getbyte 0x14); rs=$(h2d "$rs")
     hi=$(getbyte 0x1E); hi=$(h2d "$hi")
     lo=$(getbyte 0x1F); lo=$(h2d "$lo")
-    dist=$(( (hi << 8) | lo ))
-    est=$(( (rs >> 3) & 0x0F ))
-
-    # Mostrar resultado
-    if [ $dist -eq 8191 ]; then
-        echo "  medida $n: ❌ ERROR - Sin medición válida (raw=8191 mm)"
-    else
-        printf "  medida %d: ✅ distancia = %d mm (estado=0x%02X)\n" "$n" "$dist" "$rs"
-    fi
+    DIST=$(( (hi << 8) | lo ))
+    RS=$rs
 
     setbyte 0x0B 0x01
+}
+
+echo "=== Mediciones (${N}x) ==="
+for n in $(seq 1 "$N"); do
+    medir
+
+    # Glitch intermitente del módulo: falso blanco a ~20 mm (estado 0x41)
+    # cuando el crosstalk del VCSEL supera la señal del objeto. Se reintenta
+    # una vez; si vuelve a fallar, se reporta el glitch.
+    if [ "$DIST" -lt 30 ]; then
+        sleep 0.1
+        medir
+    fi
+
+    # Mostrar resultado
+    if [ "$DIST" -eq 8191 ]; then
+        echo "  medida $n: ❌ ERROR - Sin medición válida (raw=8191 mm)"
+    elif [ "$DIST" -lt 30 ]; then
+        printf "  medida %d: ❌ glitch / fuera de rango (raw=%d mm, estado=0x%02X)\n" "$n" "$DIST" "$RS"
+    else
+        printf "  medida %d: ✅ distancia = %d mm (estado=0x%02X)\n" "$n" "$DIST" "$RS"
+    fi
+
     sleep 0.3
 done
 

@@ -84,6 +84,13 @@ Por lectura de registros (single shot):
 5. `raw = 0xFFFF` o `0x1FFF` (8191) → sin señal (fuera de rango).
 6. Limpiar interrupción: `0x0B=0x01`.
 
+**Filtro de glitch (20 mm):** si el resultado corregido es < 30 mm, la
+medición se **reintenta una vez** (un nuevo single shot) antes de
+reportar. Esto descarta el falso blanco intermitente (estado `0x41`)
+que se da cuando el crosstalk del VCSEL supera la señal del objeto. Está
+implementado en `read_distance()` (app, vía `measure_once()`) y en la
+función `medir()` del script `test_vl53l0x.sh`.
+
 ## 5. Calibración por software (actual)
 
 La calibración interna (SSC/SPAD) no completa en esta unidad, así que se
@@ -149,7 +156,7 @@ la deriva**: para mediciones precisas se recomienda reemplazar el módulo.
 | `raw = 8191` (0x1FFF) siempre | Sin señal / VCSEL no emite | Verificar reset XSHUT, alimentación y cableado |
 | SSC nunca completa (`SSC completo: 0`) | VCSEL/SPAD degradado | Continuar con calibración empírica o reemplazar |
 | `0x14 & 0x07 = 0x01` | VCSEL continuity test fail | Módulo defectuoso, reemplazar |
-| Glitches de 20 mm | Módulo inestable | Filtrados por `kMinValidDistanceMm` |
+| Glitches de 20 mm (estado 0x41) | Crosstalk del VCSEL > señal del objeto | **Retry automático** en app (`measure_once()` en `read_distance`) y script (`medir()`): si el raw es < 30 mm se reintenta una vez |
 | Ruido/deriva entre corridas | VCSEL degradado | Recalibrar (sección 6) o reemplazar |
 
 ## 9. Referencias

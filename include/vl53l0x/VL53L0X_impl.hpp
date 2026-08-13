@@ -30,6 +30,7 @@ private:
     bool write_reg(uint8_t reg, uint8_t value);
     uint8_t read_reg(uint8_t reg);
     bool read_regs(uint8_t reg, uint8_t* buffer, uint16_t length);
+    uint16_t measure_once();
     uint16_t calculate_distance(uint16_t raw);
     bool wait_for_device(uint8_t address, int timeout_ms);
 

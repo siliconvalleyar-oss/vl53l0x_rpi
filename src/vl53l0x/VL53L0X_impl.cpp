@@ -166,9 +166,7 @@ bool Vl53l0x_t::Impl::initialize() {
     return true;
 }
 
-uint16_t Vl53l0x_t::Impl::read_distance() {
-    if (!is_initialized_) return 0xFFFF;
-
+uint16_t Vl53l0x_t::Impl::measure_once() {
     if (mode_ == MeasurementMode::SINGLE_SHOT) {
         if (!write_reg(VL53L0X_REG_SYSRANGE_START, 0x01)) {
             return 0xFFFF;
@@ -206,7 +204,20 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
     write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
 
     uint16_t distance = (static_cast<uint16_t>(high) << 8) | low;
-    distance = calculate_distance(distance);
+    return calculate_distance(distance);
+}
+
+uint16_t Vl53l0x_t::Impl::read_distance() {
+    if (!is_initialized_) return 0xFFFF;
+
+    uint16_t distance = measure_once();
+
+    // Glitch intermitente del modulo: falso blanco a ~20 mm (estado 0x41)
+    // cuando el crosstalk del VCSEL supera la senal del objeto. Se reintenta
+    // una vez con un nuevo single shot; si vuelve a fallar, se reporta.
+    if (distance == 0) {
+        distance = measure_once();
+    }
 
     last_distance_ = distance;
     return distance;

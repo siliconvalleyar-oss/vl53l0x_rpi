@@ -9,7 +9,7 @@ fi
 
 # Verificar privilegios de superusuario
 if [ "$EUID" -ne 0 ]; then
-    echo "Advertencia: Este programa requiere privilegios de superusuario para acceder a bcm2835"
+    echo "Advertencia: Este programa requiere privilegios de superusuario para acceder a pinctrl e I2C"
     echo "Reejecutando con sudo..."
     exec sudo "$0" "$@"
 fi
