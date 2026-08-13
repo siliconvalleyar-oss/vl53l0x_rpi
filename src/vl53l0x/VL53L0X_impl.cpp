@@ -23,9 +23,9 @@ void Vl53l0x_t::Impl::set_xshut_pin(uint8_t pin) {
     try {
         xshut_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::OUTPUT);
         xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     } catch (const std::exception& e) {
         xshut_.reset();
     }
@@ -65,10 +65,12 @@ bool Vl53l0x_t::Impl::wait_for_device(uint8_t /*address*/, int timeout_ms) {
 bool Vl53l0x_t::Impl::initialize() {
     if (xshut_) {
         xshut_->set_state(UTILS::GpioPin::State::PIN_LOW);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         xshut_->set_state(UTILS::GpioPin::State::PIN_HIGH);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     try {
         i2c_ = std::make_unique<UTILS::I2cDevice>(address_);
@@ -82,7 +84,7 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0xFF, 0x01);
     write_reg(0x00, 0x00);
     read_reg(0x91); // boot status
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     write_reg(0x00, 0x01);
     write_reg(0xFF, 0x00);
     write_reg(0x80, 0x00);
@@ -117,7 +119,7 @@ bool Vl53l0x_t::Impl::initialize() {
             ssc_ok = true;
             break;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     if (!ssc_ok) {
         std::cerr << "Aviso: calibracion SSC/SPAD no completo; "
@@ -128,88 +130,6 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0xFF, 0x06);
     write_reg(0x83, addr & ~0x04);
     write_reg(0xFF, 0x01);
-    write_reg(0x00, 0x01);
-    write_reg(0xFF, 0x00);
-    write_reg(0x80, 0x00);
-
-    // ---- VL53L0X_StaticInit: default tuning settings ----
-    write_reg(0xFF, 0x01);
-    write_reg(0x00, 0x00);
-    write_reg(0xFF, 0x00);
-    write_reg(0x09, 0x00);
-    write_reg(0x10, 0x00);
-    write_reg(0x11, 0x00);
-    write_reg(0x24, 0x01);
-    write_reg(0x25, 0xFF);
-    write_reg(0x75, 0x00);
-    write_reg(0xFF, 0x01);
-    write_reg(0x4E, 0x2C);
-    write_reg(0x48, 0x00);
-    write_reg(0x30, 0x20);
-    write_reg(0xFF, 0x00);
-    write_reg(0x30, 0x09);
-    write_reg(0x54, 0x00);
-    write_reg(0x31, 0x04);
-    write_reg(0x32, 0x03);
-    write_reg(0x40, 0x83);
-    write_reg(0x46, 0x25);
-    write_reg(0x60, 0x00);
-    write_reg(0x27, 0x00);
-    write_reg(0x50, 0x06);
-    write_reg(0x51, 0x00);
-    write_reg(0x52, 0x96);
-    write_reg(0x56, 0x08);
-    write_reg(0x57, 0x30);
-    write_reg(0x61, 0x00);
-    write_reg(0x62, 0x00);
-    write_reg(0x64, 0x00);
-    write_reg(0x65, 0x00);
-    write_reg(0x66, 0xA0);
-    write_reg(0xFF, 0x01);
-    write_reg(0x22, 0x32);
-    write_reg(0x47, 0x14);
-    write_reg(0x49, 0xFF);
-    write_reg(0x4A, 0x00);
-    write_reg(0xFF, 0x00);
-    write_reg(0x7A, 0x0A);
-    write_reg(0x7B, 0x00);
-    write_reg(0x78, 0x21);
-    write_reg(0xFF, 0x01);
-    write_reg(0x23, 0x34);
-    write_reg(0x42, 0x00);
-    write_reg(0x44, 0xFF);
-    write_reg(0x45, 0x26);
-    write_reg(0x46, 0x05);
-    write_reg(0x40, 0x40);
-    write_reg(0x0E, 0x06);
-    write_reg(0x20, 0x1A);
-    write_reg(0x43, 0x40);
-    write_reg(0xFF, 0x00);
-    write_reg(0x34, 0x03);
-    write_reg(0x35, 0x44);
-    write_reg(0xFF, 0x01);
-    write_reg(0x31, 0x04);
-    write_reg(0x4B, 0x09);
-    write_reg(0x4C, 0x05);
-    write_reg(0x4D, 0x04);
-    write_reg(0xFF, 0x00);
-    write_reg(0x44, 0x00);
-    write_reg(0x45, 0x20);
-    write_reg(0x47, 0x08);
-    write_reg(0x48, 0x28);
-    write_reg(0x67, 0x00);
-    write_reg(0x70, 0x04);
-    write_reg(0x71, 0x01);
-    write_reg(0x72, 0xFE);
-    write_reg(0x76, 0x00);
-    write_reg(0x77, 0x00);
-    write_reg(0xFF, 0x01);
-    write_reg(0x0D, 0x01);
-    write_reg(0xFF, 0x00);
-    write_reg(0x80, 0x01);
-    write_reg(0x01, 0xF8);
-    write_reg(0xFF, 0x01);
-    write_reg(0x8E, 0x01);
     write_reg(0x00, 0x01);
     write_reg(0xFF, 0x00);
     write_reg(0x80, 0x00);
