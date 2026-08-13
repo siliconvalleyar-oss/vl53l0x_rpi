@@ -4,7 +4,7 @@ Professional C++17 project for VL53L0X time-of-flight laser ranging sensor using
 
 ## Features
 
-- Complete VL53L0X sensor wrapper using bcm2835 I2C
+- Complete VL53L0X sensor wrapper using the Linux kernel I2C driver (`/dev/i2c-1`) and bcm2835 for GPIO
 - Smart pointer memory management (RAII)
 - Continuous distance measurement mode
 - Calibration offset support
@@ -19,7 +19,7 @@ Professional C++17 project for VL53L0X time-of-flight laser ranging sensor using
 - Raspberry Pi OS (32-bit or 64-bit)
 - bcm2835 library
 - C++17 compatible compiler (g++ >= 7)
-- Sudo privileges (required for bcm2835 GPIO/I2C access)
+- Sudo privileges (required for bcm2835 GPIO access)
 
 ## Quick Start
 
@@ -67,14 +67,23 @@ Memoria liberada correctamente.
 
 ## Hardware Connection
 
-| VL53L0X Pin | Raspberry Pi GPIO | Description |
-|-------------|-------------------|-------------|
-| VIN         | 3.3V (Pin 1)      | Power |
-| GND         | GND (Pin 6)       | Ground |
-| SDA         | GPIO2 (Pin 3)     | I2C Data |
-| SCL         | GPIO3 (Pin 5)     | I2C Clock |
+| VL53L0X Pin | Raspberry Pi GPIO | Header Pin | Configuration in code |
+|-------------|-------------------|------------|------------------------|
+| VIN         | 3.3 V             | Pin 1      | Power (module supports 3.3–5 V) |
+| GND         | GND               | Pin 6      | Ground |
+| SDA         | GPIO2             | Pin 3      | I2C data — kernel bus `/dev/i2c-1` (100 kHz) |
+| SCL         | GPIO3             | Pin 5      | I2C clock — kernel bus `/dev/i2c-1` (100 kHz) |
+| XSHUT       | GPIO17            | Pin 11     | Output: reset/wake del módulo (LOW 10 ms → HIGH 10 ms al iniciar) |
+| GPIO1 (INT) | GPIO27            | Pin 13     | Input: línea de interrupción del sensor (no usada en el modo actual) |
 
 I2C address: `0x29` (default)
+
+Configuración de pines en el código (`src/main.cpp`):
+
+```cpp
+laser->set_xshut_pin(17);   // GPIO17  -> XSHUT (salida, pulso de reset)
+laser->set_gpio1_pin(27);   // GPIO27  -> GPIO1/INT (entrada)
+```
 
 ## Documentation
 
