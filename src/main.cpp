@@ -4,7 +4,7 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
-#include "include/vl53l0x/VL53L0X.hpp"
+#include "vl53l0x/VL53L0X.hpp"
 
 int main() {
     std::signal(SIGINT, VL53L0X::signal_handler);

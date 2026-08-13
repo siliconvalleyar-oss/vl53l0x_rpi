@@ -1,4 +1,4 @@
-#include "include/lib/bcm2835_wrapper.hpp"
+#include "lib/bcm2835_wrapper.hpp"
 
 namespace UTILS {
 

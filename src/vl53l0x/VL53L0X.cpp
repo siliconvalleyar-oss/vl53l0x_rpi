@@ -1,5 +1,5 @@
-#include "include/vl53l0x/VL53L0X.hpp"
-#include "include/vl53l0x/VL53L0X_impl.hpp"
+#include "vl53l0x/VL53L0X.hpp"
+#include "vl53l0x/VL53L0X_impl.hpp"
 #include <iostream>
 #include <string>
 #include <csignal>
