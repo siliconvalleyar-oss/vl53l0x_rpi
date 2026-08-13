@@ -41,6 +41,9 @@ core.*
 *.bak
 *.orig
 
+# Correo de consulta al proveedor
+mail.md
+
 # Package files
 *.deb
 *.rpm
