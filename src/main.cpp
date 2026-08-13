@@ -28,8 +28,8 @@ int main() {
 
     auto laser = std::make_unique<VL53L0X::Vl53l0x_t>();
 
-    laser->set_xshut_pin(17);
-    laser->set_gpio1_pin(4);
+    laser->set_xshut_pin(27);
+    laser->set_gpio1_pin(17);
 
     if (!laser->init()) {
         std::cerr << "Error: No se pudo inicializar el sensor VL53L0X" << std::endl;

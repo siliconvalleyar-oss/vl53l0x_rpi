@@ -1,8 +1,6 @@
 #pragma once
 
-#include <bcm2835.h>
 #include <cstdint>
-#include <stdexcept>
 
 namespace UTILS {
 
@@ -18,6 +16,7 @@ public:
 
 private:
     uint8_t address_;
+    int fd_;
     bool initialized_;
     bool last_error_;
 };
