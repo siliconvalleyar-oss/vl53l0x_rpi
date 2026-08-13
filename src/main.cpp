@@ -68,7 +68,6 @@ int main() {
 
     std::cout << std::endl;
     std::cout << "Saliendo del programa... Liberando recursos." << std::endl;
-    laser->sleep();
     laser.reset();
 
     std::cout << "Memoria liberada correctamente." << std::endl;
