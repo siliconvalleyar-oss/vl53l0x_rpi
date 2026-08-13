@@ -4,6 +4,7 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 namespace VL53L0X {
 
