@@ -120,7 +120,8 @@ bool Vl53l0x_t::Impl::initialize() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     if (!ssc_ok) {
-        return false;
+        std::cerr << "Aviso: calibracion SSC/SPAD no completo; "
+                  << "continuando sin calibracion de referencia." << std::endl;
     }
 
     write_reg(0x83, 0x00);
@@ -138,8 +139,8 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0x09, 0x00);
     write_reg(0x10, 0x00);
     write_reg(0x11, 0x00);
-    write_reg(0x24, 0x00);
-    write_reg(0x25, 0x00);
+    write_reg(0x24, 0x01);
+    write_reg(0x25, 0xFF);
     write_reg(0x75, 0x00);
     write_reg(0xFF, 0x01);
     write_reg(0x4E, 0x2C);
@@ -214,8 +215,11 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0x80, 0x00);
 
     // ---- GPIO interrupt config: interrupt on new sample ready ----
-    write_reg(0x0B, 0x00);
-    write_reg(0x0A, 0x04);
+    write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CONFIG_GPIO, 0x04);
+    write_reg(VL53L0X_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
+
+    // ---- Desactivar TCC y MSRC por defecto ----
+    write_reg(VL53L0X_REG_SYSTEM_SEQUENCE_CONFIG, 0xE8);
 
     is_initialized_ = true;
     return true;
