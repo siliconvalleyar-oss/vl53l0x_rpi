@@ -1,6 +1,5 @@
 CXX ?= g++
 CXXFLAGS += -Wall -Wextra -O2 -pipe -fstack-protector-strong -std=c++17
-CXXFLAGS += -MMD -MP
 LDFLAGS += -lbcm2835 -lpthread -lrt -lm
 
 ARCH := $(shell uname -m)
@@ -40,7 +39,7 @@ $(TARGET): $(OBJS) | $(BIN_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@ -MF $(@:.o=.d)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
