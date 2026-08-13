@@ -6,9 +6,23 @@
 #include <thread>
 #include "vl53l0x/VL53L0X.hpp"
 
+#ifndef APP_VERSION
+#define APP_VERSION "desconocida"
+#endif
+
 int main() {
     std::signal(SIGINT, VL53L0X::signal_handler);
     std::signal(SIGTERM, VL53L0X::signal_handler);
+
+    std::cout << "=============================================" << std::endl;
+    std::cout << "  Laser Ranger (VL53L0X)  v" << APP_VERSION << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "  Medidor de distancia por Time-of-Flight" << std::endl;
+    std::cout << "  Modo de prueba: 16 segundos" << std::endl;
+    std::cout << "  Presione Ctrl+C para salir antes" << std::endl;
+    std::cout << "  Compilado: " << __DATE__ << " " << __TIME__ << std::endl;
+    std::cout << "=============================================" << std::endl;
+    std::cout << std::endl;
 
     std::cout << "Iniciando sensor VL53L0X..." << std::endl;
 
