@@ -171,7 +171,7 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
 
     for (int i = 0; i < 100; ++i) {
         uint8_t status = read_reg(VL53L0X_REG_RESULT_INTERRUPT_STATUS);
-        if (status & 0x07) {
+        if (status & 0x01) {
             break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
