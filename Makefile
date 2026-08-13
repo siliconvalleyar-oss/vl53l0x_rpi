@@ -5,11 +5,15 @@ LDFLAGS += -lbcm2835 -lpthread -lrt -lm
 APP_VERSION := $(shell cat VERSION)
 CXXFLAGS += -DAPP_VERSION=\"$(APP_VERSION)\"
 
-ARCH := $(shell uname -m)
-ifeq ($(ARCH),armv7l)
-    CXXFLAGS += -march=armv7-a -mfloat-abi=hard -mfpu=neon
-else ifeq ($(ARCH),aarch64)
+# Deteccion por el objetivo del compilador (no el kernel):
+# la Raspberry puede tener kernel 64 bits (uname -m=aarch64) con
+# userland/toolchain de 32 bits (armhf) y viceversa.
+CXX_TARGET := $(shell $(CXX) -dumpmachine 2>/dev/null)
+
+ifeq ($(findstring aarch64,$(CXX_TARGET)),aarch64)
     CXXFLAGS += -march=armv8-a -mtune=cortex-a72
+else ifneq ($(findstring arm,$(CXX_TARGET)),)
+    CXXFLAGS += -march=armv7-a -mfloat-abi=hard -mfpu=neon
 endif
 
 TARGET := bin/laser_measure
