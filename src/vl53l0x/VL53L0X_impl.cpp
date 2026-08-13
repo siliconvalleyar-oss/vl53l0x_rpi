@@ -48,7 +48,7 @@ bool Vl53l0x_t::Impl::hardware_reset() {
     return true;
 }
 
-bool Vl53l0x_t::Impl::wait_for_device(uint8_t address, int timeout_ms) {
+bool Vl53l0x_t::Impl::wait_for_device(uint8_t /*address*/, int timeout_ms) {
     auto start = std::chrono::steady_clock::now();
     while (std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start).count() < timeout_ms) {

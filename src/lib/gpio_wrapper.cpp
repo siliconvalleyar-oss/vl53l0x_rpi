@@ -8,7 +8,7 @@ GpioPin::GpioPin(uint8_t pin, Direction direction)
         throw std::runtime_error("Failed to initialize bcm2835 for GPIO");
     }
 
-    bcm2835_gpio_fsel(pin_, BCM2835_GPIO_FSEL_OUTPT);
+    bcm2835_gpio_fsel(pin_, BCM2835_GPIO_FSEL_OUTP);
     set_direction(direction);
     initialized_ = true;
 }
@@ -33,7 +33,7 @@ GpioPin::State GpioPin::get_state() const {
 void GpioPin::set_direction(Direction direction) {
     if (!initialized_) return;
     uint8_t mode = (direction == Direction::OUTPUT)
-        ? BCM2835_GPIO_FSEL_OUTPT
+        ? BCM2835_GPIO_FSEL_OUTP
         : BCM2835_GPIO_FSEL_INPT;
     bcm2835_gpio_fsel(pin_, mode);
 }
