@@ -36,10 +36,10 @@ void gpio_set_input(uint8_t pin) {
 }
 
 // Calibracion con referencia A4 = 297 mm (medicion fresca):
-//   raw estable = 241 mm  =>  real = raw x 297/241 (ganancia pura)
-//   real = raw x 100 / 81
+//   raw estable = 290 mm  =>  real = raw x 297/290 (ganancia pura)
+//   real = raw x 100 / 98
 constexpr int32_t kCalibRawToMmOffset = 0;
-constexpr int32_t kCalibRawToMmScale = 81; // (x100)
+constexpr int32_t kCalibRawToMmScale = 98; // (x100)
 constexpr int32_t kMinValidDistanceMm = 30;
 }
 
