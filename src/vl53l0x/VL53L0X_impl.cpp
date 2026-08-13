@@ -76,16 +76,7 @@ bool Vl53l0x_t::Impl::initialize() {
         return false;
     }
 
-    if (!wait_for_device(address_, 200)) {
-        return false;
-    }
-
-    uint8_t device_id = read_reg(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
-    if (device_id != VL53L0X_DEVICE_ID) {
-        return false;
-    }
-
-    // ---- VL53L0X_DataInit ----
+    // ---- VL53L0X_DataInit: boot/wake del firmware (sale del estado stop) ----
     write_reg(0x88, 0x00);
     write_reg(0x80, 0x01);
     write_reg(0xFF, 0x01);
@@ -95,6 +86,15 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0x00, 0x01);
     write_reg(0xFF, 0x00);
     write_reg(0x80, 0x00);
+
+    if (!wait_for_device(address_, 200)) {
+        return false;
+    }
+
+    uint8_t device_id = read_reg(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
+    if (device_id != VL53L0X_DEVICE_ID) {
+        return false;
+    }
 
     // ---- VL53L0X_StaticInit: boot/VCSEL sequence ----
     write_reg(0xFF, 0x01);
