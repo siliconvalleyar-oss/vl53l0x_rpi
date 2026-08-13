@@ -104,14 +104,15 @@ Constantes actuales (`src/vl53l0x/VL53L0X_impl.cpp`):
 
 ```cpp
 constexpr int32_t kCalibRawToMmOffset = 0;
-constexpr int32_t kCalibRawToMmScale  = 98;   // (×100) → real = raw × 100 / 98
+constexpr int32_t kCalibRawToMmScale  = 120;  // (×100) → real = raw × 100 / 120
 constexpr int32_t kMinValidDistanceMm = 30;   // debajo: fuera de rango
 ```
 
 - Lecturas por debajo de 30 mm se muestran como «fuera de rango»
   (filtra glitches de 20 mm).
 - La ganancia se calculó con la referencia **A4 = 297 mm**:
-  raw estable medido = 290 mm → `297 / 290 = 1.024` → escala `98`.
+  raw estable medido = 358 mm → `100 × 297 / 358 ≈ 120` (v1.2.17).
+  La anterior era 98 con raw = 290 mm; el módulo derivó al alza.
 
 ## 6. Procedimiento de recalibración
 
@@ -144,6 +145,7 @@ Raw medido a la misma distancia (297 mm, A4) en distintas sesiones:
 | C      | 275      | 93  |
 | D      | 241      | 81  |
 | E      | 290      | 98  |
+| F      | 358      | 120 |
 
 La deriva de ±20 % entre sesiones es síntoma del VCSEL degradado. La
 calibración por software centra el error, pero **no elimina el ruido ni
