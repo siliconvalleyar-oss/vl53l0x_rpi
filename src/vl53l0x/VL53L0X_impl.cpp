@@ -17,7 +17,62 @@ Vl53l0x_t::Impl::Impl()
 
 Vl53l0x_t::Impl::~Impl() = default;
 
+void Vl53l0x_t::Impl::set_xshut_pin(uint8_t pin) {
+    if (pin == 0) return;
+    try {
+        xshut_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::OUTPUT);
+        xshut_->set_state(UTILS::GpioPin::State::LOW);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        xshut_->set_state(UTILS::GpioPin::State::HIGH);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    } catch (const std::exception& e) {
+        xshut_.reset();
+    }
+}
+
+void Vl53l0x_t::Impl::set_gpio1_pin(uint8_t pin) {
+    if (pin == 0) return;
+    try {
+        gpio1_ = std::make_unique<UTILS::GpioPin>(pin, UTILS::GpioPin::Direction::INPUT);
+    } catch (const std::exception& e) {
+        gpio1_.reset();
+    }
+}
+
+bool Vl53l0x_t::Impl::hardware_reset() {
+    if (!xshut_) return false;
+    xshut_->set_state(UTILS::GpioPin::State::LOW);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    xshut_->set_state(UTILS::GpioPin::State::HIGH);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    return true;
+}
+
+bool Vl53l0x_t::Impl::wait_for_device(uint8_t address, int timeout_ms) {
+    auto start = std::chrono::steady_clock::now();
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start).count() < timeout_ms) {
+        uint8_t id = read_reg(VL53L0X_REG_IDENTIFICATION_MODEL_ID);
+        if (id == VL53L0X_DEVICE_ID) {
+            return true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return false;
+}
+
 bool Vl53l0x_t::Impl::initialize() {
+    if (xshut_) {
+        xshut_->set_state(UTILS::GpioPin::State::LOW);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        xshut_->set_state(UTILS::GpioPin::State::HIGH);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    if (!wait_for_device(address_, 100)) {
+        return false;
+    }
+
     try {
         i2c_ = std::make_unique<UTILS::I2cDevice>(address_);
     } catch (const std::exception& e) {
@@ -34,7 +89,6 @@ bool Vl53l0x_t::Impl::initialize() {
     write_reg(0xFF, 0x01);
     write_reg(0x00, 0x00);
 
-    uint8_t stop_variable = read_reg(0x91);
     write_reg(0x00, 0x01);
     write_reg(0xFF, 0x00);
     write_reg(0x80, 0x00);

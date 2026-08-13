@@ -23,9 +23,17 @@ DEPS := $(OBJS:.o=.d)
 
 INCLUDES := $(addprefix -I,$(shell find $(INC_DIR) -type d))
 
-.PHONY: all clean distclean install uninstall
+.PHONY: all clean distclean install uninstall run
 
 all: $(TARGET)
+
+run: $(TARGET)
+	@if [ "$(shell whoami)" != "root" ]; then \
+		echo "Ejecutando con sudo..."; \
+		sudo $(TARGET); \
+	else \
+		$(TARGET); \
+	fi
 
 $(TARGET): $(OBJS) | $(BIN_DIR)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)

@@ -51,6 +51,10 @@ public:
     void wake();
     void set_measurement_mode(MeasurementMode mode);
 
+    void set_xshut_pin(uint8_t pin);
+    void set_gpio1_pin(uint8_t pin);
+    bool hardware_reset();
+
     uint8_t get_address() const;
     int16_t get_offset() const;
     bool is_initialized() const;

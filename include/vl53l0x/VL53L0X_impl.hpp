@@ -3,6 +3,7 @@
 #include <memory>
 #include "VL53L0X.hpp"
 #include "lib/bcm2835_wrapper.hpp"
+#include "lib/gpio_wrapper.hpp"
 
 namespace VL53L0X {
 
@@ -17,14 +18,21 @@ public:
     void set_mode(MeasurementMode mode);
     void sleep();
     void wake();
+    bool hardware_reset();
+
+    void set_xshut_pin(uint8_t pin);
+    void set_gpio1_pin(uint8_t pin);
 
 private:
     bool write_reg(uint8_t reg, uint8_t value);
     uint8_t read_reg(uint8_t reg);
     bool read_regs(uint8_t reg, uint8_t* buffer, uint16_t length);
     uint16_t calculate_distance(uint16_t raw);
+    bool wait_for_device(uint8_t address, int timeout_ms);
 
     std::unique_ptr<UTILS::I2cDevice> i2c_;
+    std::unique_ptr<UTILS::GpioPin> xshut_;
+    std::unique_ptr<UTILS::GpioPin> gpio1_;
     uint8_t address_;
     int16_t offset_;
     bool is_initialized_;

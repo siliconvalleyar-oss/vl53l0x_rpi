@@ -54,6 +54,21 @@ void Vl53l0x_t::set_measurement_mode(MeasurementMode mode) {
     pimpl->set_mode(mode);
 }
 
+void Vl53l0x_t::set_xshut_pin(uint8_t pin) {
+    if (!pimpl) return;
+    pimpl->set_xshut_pin(pin);
+}
+
+void Vl53l0x_t::set_gpio1_pin(uint8_t pin) {
+    if (!pimpl) return;
+    pimpl->set_gpio1_pin(pin);
+}
+
+bool Vl53l0x_t::hardware_reset() {
+    if (!pimpl) return false;
+    return pimpl->hardware_reset();
+}
+
 uint8_t Vl53l0x_t::get_address() const {
     return VL53L0X_DEFAULT_ADDRESS;
 }

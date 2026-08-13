@@ -85,7 +85,15 @@ VIN              3.3V                 Pin 1 (Red wire)
 GND              GND                  Pin 6 (Black wire)
 SDA              GPIO2 (SDA1)         Pin 3 (Green wire)
 SCL              GPIO3 (SCL1)         Pin 5 (Yellow wire)
+GPIO1            GPIO4                Pin 7
+XSHUT            GPIO17               Pin 11
 ```
+
+### Notes
+
+- GPIO1 and XSHUT are used for hardware control and reset.
+- XSHUT is active LOW. Pull it HIGH to enable the sensor.
+- GPIO4 can be used for additional control or interrupt signaling.
 
 ### Verification
 
