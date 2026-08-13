@@ -187,6 +187,7 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
 
     uint8_t buffer[2];
     read_regs(VL53L0X_REG_RESULT_RANGE_STATUS + 10, buffer, 2);
+    std::cerr << "Debug: raw distance bytes=" << std::hex << (int)buffer[0] << " " << (int)buffer[1] << std::dec << std::endl;
     uint16_t distance = (static_cast<uint16_t>(buffer[0]) << 8) | buffer[1];
     distance = calculate_distance(distance);
 
