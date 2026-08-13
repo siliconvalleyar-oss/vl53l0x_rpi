@@ -237,7 +237,7 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
     bool ready = false;
     for (int i = 0; i < 100; ++i) {
         uint8_t status = read_reg(VL53L0X_REG_RESULT_INTERRUPT_STATUS);
-        if (status == 0xFF) {
+        if (i2c_ && i2c_->last_error()) {
             return 0xFFFF;
         }
         if (status & 0x07) {
@@ -254,9 +254,15 @@ uint16_t Vl53l0x_t::Impl::read_distance() {
     }
 
     uint8_t range_status = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS);
+    if (i2c_ && i2c_->last_error()) {
+        return 0xFFFF;
+    }
     uint8_t high = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 10);
+    if (i2c_ && i2c_->last_error()) {
+        return 0xFFFF;
+    }
     uint8_t low = read_reg(VL53L0X_REG_RESULT_RANGE_STATUS + 11);
-    if (high == 0xFF || low == 0xFF) {
+    if (i2c_ && i2c_->last_error()) {
         return 0xFFFF;
     }
 
