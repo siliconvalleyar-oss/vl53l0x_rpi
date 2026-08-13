@@ -1,14 +1,12 @@
-#include "lib/bcm2835_wrapper.hpp"
+#include "include/lib/bcm2835_wrapper.hpp"
+#include "include/lib/bcm2835_init.hpp"
 
 namespace UTILS {
 
 I2cDevice::I2cDevice(uint8_t address)
     : address_(address), initialized_(false) {
-    if (!bcm2835_init()) {
-        throw std::runtime_error("Failed to initialize bcm2835");
-    }
+    Bcm2835Init::initialize();
     if (!bcm2835_i2c_begin()) {
-        bcm2835_close();
         throw std::runtime_error("Failed to initialize I2C");
     }
     bcm2835_i2c_setSlaveAddress(address_);
@@ -18,7 +16,6 @@ I2cDevice::I2cDevice(uint8_t address)
 I2cDevice::~I2cDevice() {
     if (initialized_) {
         bcm2835_i2c_end();
-        bcm2835_close();
     }
 }
 

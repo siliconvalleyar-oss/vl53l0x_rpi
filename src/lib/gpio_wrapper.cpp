@@ -1,22 +1,18 @@
 #include "gpio_wrapper.hpp"
+#include "include/lib/bcm2835_init.hpp"
 
 namespace UTILS {
 
 GpioPin::GpioPin(uint8_t pin, Direction direction)
     : pin_(pin), initialized_(false) {
-    if (!bcm2835_init()) {
-        throw std::runtime_error("Failed to initialize bcm2835 for GPIO");
-    }
-
+    Bcm2835Init::initialize();
     bcm2835_gpio_fsel(pin_, BCM2835_GPIO_FSEL_OUTP);
     set_direction(direction);
     initialized_ = true;
 }
 
 GpioPin::~GpioPin() {
-    if (initialized_) {
-        bcm2835_close();
-    }
+    initialized_ = false;
 }
 
 void GpioPin::set_state(State state) {
