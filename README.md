@@ -92,6 +92,7 @@ laser->set_gpio1_pin(27);   // GPIO27  -> GPIO1/INT (entrada)
 - [Setup Guide](docs/SETUP.md) - Raspberry Pi initial configuration
 - [Testing Guide](docs/TESTING.md) - Unit and integration tests
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Calibration](docs/CALIBRACION.md) - Device settings and calibration
 - [Coding Rules](docs/RULES.md) - Code style and conventions
 - [Todo List](docs/TODO.md) - Planned features and improvements
 - [Changelog](docs/CHANGELOG.md) - Version history
