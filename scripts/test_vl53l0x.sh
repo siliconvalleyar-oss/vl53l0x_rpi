@@ -5,6 +5,11 @@ BUS=${1:-1}
 DIR=${2:-0x29}
 N=${3:-5}
 
+# Calibracion (misma que la app, ver docs/CALIBRACION.md):
+#   real_mm = raw_mm x 100 / SCALE   (raw=358 a 297mm => SCALE=120)
+SCALE=120
+MIN_VALID=30
+
 echo "=== Inicializando GPIO17 (XSHUT) ==="
 if command -v pinctrl &> /dev/null; then
     pinctrl set 17 op
@@ -103,7 +108,8 @@ setbyte 0x0A 0x04
 setbyte 0x0B 0x01
 setbyte 0x94 0xE8
 
-# Función: una medición single-shot. Deja el resultado en $DIST y el estado en $RS.
+# Función: una medición single-shot. Deja el raw en $DIST, el estado en $RS
+# y el valor calibrado en $MM (0 = glitch/fuera de rango).
 medir() {
     setbyte 0x00 0x01
 
@@ -120,6 +126,13 @@ medir() {
     DIST=$(( (hi << 8) | lo ))
     RS=$rs
 
+    if [ "$DIST" -eq 8191 ]; then
+        MM=0
+    else
+        MM=$(( (DIST * 100) / SCALE ))
+        [ "$MM" -lt "$MIN_VALID" ] && MM=0
+    fi
+
     setbyte 0x0B 0x01
 }
 
@@ -130,7 +143,7 @@ for n in $(seq 1 "$N"); do
     # Glitch intermitente del módulo: falso blanco a ~20 mm (estado 0x41)
     # cuando el crosstalk del VCSEL supera la señal del objeto. Se reintenta
     # una vez; si vuelve a fallar, se reporta el glitch.
-    if [ "$DIST" -lt 30 ]; then
+    if [ "$MM" -eq 0 ]; then
         sleep 0.1
         medir
     fi
@@ -138,10 +151,10 @@ for n in $(seq 1 "$N"); do
     # Mostrar resultado
     if [ "$DIST" -eq 8191 ]; then
         echo "  medida $n: ❌ ERROR - Sin medición válida (raw=8191 mm)"
-    elif [ "$DIST" -lt 30 ]; then
+    elif [ "$MM" -eq 0 ]; then
         printf "  medida %d: ❌ glitch / fuera de rango (raw=%d mm, estado=0x%02X)\n" "$n" "$DIST" "$RS"
     else
-        printf "  medida %d: ✅ distancia = %d mm (estado=0x%02X)\n" "$n" "$DIST" "$RS"
+        printf "  medida %d: ✅ distancia = %d mm (raw=%d, estado=0x%02X)\n" "$n" "$MM" "$DIST" "$RS"
     fi
 
     sleep 0.3

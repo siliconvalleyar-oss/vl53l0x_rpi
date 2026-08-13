@@ -11,22 +11,11 @@ sudo apt update
 echo "Instalando herramientas de compilacion..."
 sudo apt install -y build-essential git cmake pkg-config
 
-# Instalar libreria bcm2835
-echo "Instalando libreria bcm2835..."
-if ! dpkg -l | grep -q bcm2835; then
-    wget -q http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz
-    tar -zxvf bcm2835-1.71.tar.gz
-    cd bcm2835-1.71
-    ./configure
-    make
-    sudo make check
-    sudo make install
-    cd ..
-    rm -rf bcm2835-1.71 bcm2835-1.71.tar.gz
-    echo "bcm2835 instalado correctamente"
-else
-    echo "bcm2835 ya esta instalado"
-fi
+# Control de pines por driver del kernel (pinctrl / raspi-gpio).
+# pinctrl viene con raspberrypi-utils (nuevo); raspi-gpio con wiringpi (viejo).
+# El script usa pinctrl si existe y cae a raspi-gpio.
+echo "Instalando herramientas de control de pines..."
+sudo apt install -y raspi-utils 2>/dev/null || sudo apt install -y pinctrl 2>/dev/null || true
 
 # Instalar i2c-tools (para diagnosticos)
 echo "Instalando i2c-tools..."
