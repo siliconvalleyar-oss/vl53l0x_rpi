@@ -8,6 +8,14 @@
 
 namespace VL53L0X {
 
+namespace {
+// Calibracion empirica del modulo (SSC no completo):
+//   medido = 1.4644 x real + 23  =>  real = (medido - 23) x 100 / 146
+// Puntos de referencia: 30 mm -> 67 mm, 297 mm (A4) -> 458 mm
+constexpr int32_t kCalibRawToMmOffset = 23;
+constexpr int32_t kCalibRawToMmScale = 146; // (x100)
+}
+
 Vl53l0x_t::Impl::Impl()
     : address_(VL53L0X_DEFAULT_ADDRESS)
     , offset_(0)
@@ -249,7 +257,9 @@ bool Vl53l0x_t::Impl::read_regs(uint8_t reg, uint8_t* buffer, uint16_t length) {
 
 uint16_t Vl53l0x_t::Impl::calculate_distance(uint16_t raw) {
     if (raw == 0xFFFF || raw == 0x1FFF) return 0;
-    return raw;
+    int32_t corrected = (static_cast<int32_t>(raw) - kCalibRawToMmOffset) * 100 / kCalibRawToMmScale;
+    if (corrected < 0) corrected = 0;
+    return static_cast<uint16_t>(corrected);
 }
 
 }
