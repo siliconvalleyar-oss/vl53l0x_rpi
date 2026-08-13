@@ -7,14 +7,14 @@
 #define PIN_GPIO1 4
 
 uint8_t readByte(uint8_t reg) {
-    bcm2835_i2c_write(&reg, 1);
+    bcm2835_i2c_write(reinterpret_cast<const char*>(&reg), 1);
     char buf[1];
     bcm2835_i2c_read(buf, 1);
-    return buf[0];
+    return static_cast<uint8_t>(buf[0]);
 }
 
 void writeByte(uint8_t reg, uint8_t data) {
-    char buffer[2] = {reg, data};
+    char buffer[2] = {static_cast<char>(reg), static_cast<char>(data)};
     bcm2835_i2c_write(buffer, 2);
 }
 
